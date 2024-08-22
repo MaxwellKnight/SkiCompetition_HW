@@ -14,6 +14,9 @@ import game.Interfaces.IArena;
  */
 public class WinterSportsman extends Sportsman {
 	protected Discipline discipline;
+	private int id;
+
+	private static int lastId;
 
 	/**
 	 * Constructs a WinterSportsman with the specified attributes.
@@ -33,6 +36,15 @@ public class WinterSportsman extends Sportsman {
 		super(name, age, gender, acceleration, maxSpeed);
 		ValidationUtils.assertNotNull(discipline);
 		this.discipline = discipline;
+		this.id = WinterSportsman.generateId();
+	}
+
+	private static int generateId() {
+		return WinterSportsman.lastId + 1;
+	}
+
+	public int getId() {
+		return this.id;
 	}
 
 	/**
