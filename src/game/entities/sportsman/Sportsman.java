@@ -3,12 +3,10 @@ package game.entities.sportsman;
 import game.entities.MobileEntity;
 import game.enums.Gender;
 import utilities.ValidationUtils;
-
-import java.awt.Point;
-import java.util.*;
-
+import utilities.Point;
 import game.Interfaces.IArena;
 import game.Interfaces.ICompetitor;
+import java.util.*;
 
 /**
  * Maxwell Knight: 326905791
@@ -61,7 +59,7 @@ public abstract class Sportsman extends Observable implements ICompetitor {
 		}
 
 		this.entity.setLocation(new Point(
-				this.entity.getLocation().getX(),
+				(double) this.entity.getLocation().getX(),
 				(double) this.arena.getLength()));
 		this.notifyObservers();
 	}
