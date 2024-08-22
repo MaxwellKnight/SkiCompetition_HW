@@ -13,7 +13,7 @@ import game.Interfaces.IArena;
  *
  */
 public class WinterSportsman extends Sportsman {
-	private Discipline discipline;
+	protected Discipline discipline;
 
 	/**
 	 * Constructs a WinterSportsman with the specified attributes.

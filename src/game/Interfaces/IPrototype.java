@@ -1,7 +1,7 @@
 package game.Interfaces;
 
-import game.entities.sportsman.Sportsman;
+import game.entities.sportsman.WinterSportsman;
 
 public interface IPrototype {
-	public Sportsman clone();
+	public WinterSportsman clone();
 }

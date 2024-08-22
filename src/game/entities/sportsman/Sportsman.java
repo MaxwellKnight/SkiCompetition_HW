@@ -97,6 +97,10 @@ public abstract class Sportsman extends Observable implements ICompetitor {
 		return this.name;
 	}
 
+	public double getAcceleration() {
+		return this.getAcceleration();
+	}
+
 	public double getMaxSpeed() {
 		return this.entity.getMaxSpeed();
 	}
