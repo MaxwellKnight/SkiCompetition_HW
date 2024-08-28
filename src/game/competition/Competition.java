@@ -9,7 +9,6 @@ import java.util.*;
 /**
  * Maxwell Knight: 326905791
  * Dor Gabriel Israeli : 305092835
- *
  */
 public abstract class Competition implements Observer {
 	protected final IArena arena;
