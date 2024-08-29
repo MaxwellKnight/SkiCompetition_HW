@@ -1,10 +1,17 @@
 package game.competition;
 
+import static java.util.concurrent.Executors.newFixedThreadPool;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.Observable;
+import java.util.Observer;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
 import game.Interfaces.IArena;
 import game.Interfaces.ICompetitor;
 import utilities.ValidationUtils;
-
-import java.util.*;
 
 /**
  * Maxwell Knight: 326905791
@@ -15,24 +22,39 @@ public abstract class Competition implements Observer {
 	protected final int maxCompetitors;
 	protected ArrayList<ICompetitor> activeCompetitors;
 	protected ArrayList<ICompetitor> finishedCompetitors;
+	private final ExecutorService executorService;
 
 	protected boolean isDone = false;
 
 	/**
 	 * Constructs a competition with the specified arena and maximum number of
 	 * competitors.
-	 *
+	 * 
 	 * @param arena          The arena where the competition takes place.
 	 * @param maxCompetitors The maximum number of competitors allowed in the
 	 *                       competition.
 	 */
-	public Competition(IArena arena, int maxCompetitors) {
+	public Competition(final IArena arena, final int maxCompetitors) {
+		this(arena, maxCompetitors, 10);
+	}
+
+	/**
+	 * Constructs a competition with the specified arena, maximum number of
+	 * competitors, and thread count.
+	 *
+	 * @param arena          The arena where the competition takes place.
+	 * @param maxCompetitors The maximum number of competitors allowed in the
+	 *                       competition.
+	 * @param thread_count   The number of threads for the thread pool.
+	 */
+	public Competition(final IArena arena, final int maxCompetitors, final int thread_count) {
 		ValidationUtils.assertNotNull(arena);
 		ValidationUtils.assertPositive(maxCompetitors);
 		this.arena = arena;
 		this.maxCompetitors = maxCompetitors;
-		activeCompetitors = new ArrayList<>();
-		finishedCompetitors = new ArrayList<>();
+		this.activeCompetitors = new ArrayList<>();
+		this.finishedCompetitors = new ArrayList<>();
+		this.executorService = Executors.newFixedThreadPool(thread_count);
 	}
 
 	public ArrayList<ICompetitor> getCompetitors() {
@@ -53,12 +75,11 @@ public abstract class Competition implements Observer {
 	 * conditions.
 	 */
 	public synchronized void launch_racers() {
-		Iterator<ICompetitor> iter = activeCompetitors.iterator();
+		final Iterator<ICompetitor> iter = activeCompetitors.iterator();
 
 		while (iter.hasNext()) {
-			ICompetitor current = iter.next();
-			Thread sportsman = new Thread(current);
-			sportsman.start();
+			final ICompetitor current = iter.next();
+			executorService.submit(current);
 		}
 	}
 
@@ -69,8 +90,8 @@ public abstract class Competition implements Observer {
 	 * @param observable The observable object that notifies the observer.
 	 */
 	@Override
-	public synchronized void update(Observable observable, Object o) {
-		ICompetitor competitor = (ICompetitor) observable;
+	public synchronized void update(final Observable observable, final Object o) {
+		final ICompetitor competitor = (ICompetitor) observable;
 		activeCompetitors.remove(competitor);
 		finishedCompetitors.add(competitor);
 		if (activeCompetitors.size() == 0)
@@ -89,7 +110,7 @@ public abstract class Competition implements Observer {
 	 * @throws IllegalArgumentException If the competitor is invalid for this
 	 *                                  competition.
 	 */
-	public void addCompetitor(ICompetitor competitor) {
+	public void addCompetitor(final ICompetitor competitor) {
 		if (this.activeCompetitors.size() >= this.maxCompetitors) {
 			throw new IllegalStateException(this.arena.toString() + "" + this.maxCompetitors);
 		} else if (!this.isValidCompetitor(competitor)) {
@@ -115,7 +136,7 @@ public abstract class Competition implements Observer {
 	public void printFinishedCompetitors() {
 		int index = 1;
 		System.out.println("Race results: ");
-		for (ICompetitor finishedCompetitor : this.finishedCompetitors) {
+		for (final ICompetitor finishedCompetitor : this.finishedCompetitors) {
 			System.out.println(index++ + ". " + finishedCompetitor.toString());
 		}
 	}
@@ -127,14 +148,14 @@ public abstract class Competition implements Observer {
 	 * @return True if the objects are equal, false otherwise.
 	 */
 	@Override
-	public boolean equals(Object obj) {
+	public boolean equals(final Object obj) {
 		if (this == obj) {
 			return true;
 		}
 		if (obj == null || getClass() != obj.getClass()) {
 			return false;
 		}
-		Competition that = (Competition) obj;
+		final Competition that = (Competition) obj;
 		return maxCompetitors == that.maxCompetitors &&
 				arena.equals(that.arena) &&
 				activeCompetitors.equals(that.activeCompetitors) &&

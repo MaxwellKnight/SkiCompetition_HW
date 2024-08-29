@@ -1,6 +1,7 @@
 package game.competition;
 
 import game.Interfaces.IArena;
+import game.Interfaces.ICompetitionBuilder;
 import game.enums.Discipline;
 import game.enums.League;
 import game.enums.Gender;
@@ -8,7 +9,7 @@ import game.enums.Gender;
 /**
  * Competition Builder
  */
-public class SkiCompetitionBuilder {
+public class SkiCompetitionBuilder implements ICompetitionBuilder {
 	private IArena _arena;
 	private int _maxCompetitors;
 	private Discipline _discipline;
@@ -40,7 +41,7 @@ public class SkiCompetitionBuilder {
 		return this;
 	}
 
-	public Competition build(final String kind) {
+	public SkiCompetition build() {
 		return new SkiCompetition(
 				_arena,
 				_maxCompetitors,
