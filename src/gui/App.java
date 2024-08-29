@@ -138,11 +138,11 @@ public class App extends JFrame {
 		final Timer timer = new Timer(500, new ActionListener() {
 			@Override
 			public void actionPerformed(final ActionEvent e) {
-				model.setRowCount(0); // Clear existing rows
+				model.setRowCount(0);
 				print_competitors_info(model);
 
 				if (!winter_competition.hasActiveCompetitors()) {
-					((Timer) e.getSource()).stop(); // Stop the timer when competition is over
+					((Timer) e.getSource()).stop();
 				}
 			}
 		});
@@ -380,6 +380,7 @@ public class App extends JFrame {
 		game.setLayout(new BoxLayout(game, BoxLayout.Y_AXIS));
 		game.setBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, Color.GRAY));
 
+		final JButton info_btn = new JButton("Show Info");
 		final JButton start_btn = new JButton("Start Competition");
 		start_btn.addActionListener(new ActionListener() {
 			@Override
@@ -401,19 +402,22 @@ public class App extends JFrame {
 							screen.repaint();
 						});
 
-						// Sleep to avoid hogging the CPU
 						try {
-							Thread.sleep(100); // Adjust this as needed
-						} catch (InterruptedException ex) {
+							Thread.sleep(100);
+						} catch (final InterruptedException ex) {
 							ex.printStackTrace();
 						}
 					}
 
-					// Once the competition is over, do any necessary cleanup here.
+					SwingUtilities.invokeLater(() -> {
+						for (final ActionListener al : info_btn.getActionListeners()) {
+							info_btn.removeActionListener(al);
+						}
+					});
 				}).start();
 			}
 		});
-		final JButton info_btn = new JButton("Show Info");
+
 		info_btn.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(final ActionEvent e) {

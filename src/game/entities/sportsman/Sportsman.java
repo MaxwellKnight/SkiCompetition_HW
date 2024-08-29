@@ -1,5 +1,7 @@
 package game.entities.sportsman;
 
+import java.awt.Color;
+
 import game.entities.MobileEntity;
 import game.enums.Gender;
 import utilities.ValidationUtils;
@@ -21,6 +23,7 @@ public abstract class Sportsman extends Observable implements ICompetitor {
 	protected IArena arena;
 	protected MobileEntity entity;
 	protected Vector<Observer> observers;
+	protected Color color;
 
 	/**
 	 * Constructs a Sportsman with the specified attributes.
@@ -34,7 +37,8 @@ public abstract class Sportsman extends Observable implements ICompetitor {
 	 *                                  not positive.
 	 * @throws NullPointerException     If the gender is null.
 	 */
-	public Sportsman(String name, double age, Gender gender, double acceleration, double maxSpeed) {
+	public Sportsman(final String name, final double age, final Gender gender, final double acceleration,
+			final double maxSpeed) {
 		ValidationUtils.assertNotNullOrEmptyString(name);
 		ValidationUtils.assertPositive(age);
 		ValidationUtils.assertNotNull(gender);
@@ -53,7 +57,7 @@ public abstract class Sportsman extends Observable implements ICompetitor {
 			this.entity.move(this.arena.getFriction());
 			try {
 				Thread.sleep(100);
-			} catch (InterruptedException e) {
+			} catch (final InterruptedException e) {
 				System.out.println(e.getMessage());
 			}
 		}
@@ -65,26 +69,26 @@ public abstract class Sportsman extends Observable implements ICompetitor {
 	}
 
 	@Override
-	public void addObserver(Observer observer) {
+	public void addObserver(final Observer observer) {
 		this.observers.add(observer);
 	}
 
 	@Override
-	public void deleteObserver(Observer observer) {
+	public void deleteObserver(final Observer observer) {
 		this.observers.remove(observer);
 	}
 
 	@Override
 	public void notifyObservers() {
-		Iterator<Observer> iter = this.observers.iterator();
+		final Iterator<Observer> iter = this.observers.iterator();
 
 		while (iter.hasNext()) {
-			Observer current = iter.next();
+			final Observer current = iter.next();
 			current.update(this, current);
 		}
 	}
 
-	public void move(double friction) {
+	public void move(final double friction) {
 		this.entity.move(friction);
 	}
 
@@ -97,8 +101,23 @@ public abstract class Sportsman extends Observable implements ICompetitor {
 		return this.name;
 	}
 
+	public Color getColor() {
+		return color;
+	}
+
+	public void setColor(Color color) {
+		this.color = color;
+	}
+
 	public double getAcceleration() {
 		return this.getAcceleration();
+	}
+
+	/**
+	 * @param acceleration
+	 */
+	public void setAcceleration(final double acceleration) {
+		entity.setAcceleration(acceleration);
 	}
 
 	public double getMaxSpeed() {
@@ -133,7 +152,7 @@ public abstract class Sportsman extends Observable implements ICompetitor {
 	 * @param name The new name of the sportsman.
 	 * @throws IllegalArgumentException If the name is null or empty.
 	 */
-	public void setName(String name) {
+	public void setName(final String name) {
 		ValidationUtils.assertNotNullOrEmptyString(name);
 		this.name = name;
 	}
@@ -144,7 +163,7 @@ public abstract class Sportsman extends Observable implements ICompetitor {
 	 * @param age The new age of the sportsman.
 	 * @throws IllegalArgumentException If the age is not positive.
 	 */
-	public void setAge(double age) {
+	public void setAge(final double age) {
 		ValidationUtils.assertPositive(age);
 		this.age = age;
 	}
@@ -155,7 +174,7 @@ public abstract class Sportsman extends Observable implements ICompetitor {
 	 * @param gender The new gender of the sportsman.
 	 * @throws NullPointerException If the gender is null.
 	 */
-	public void setGender(Gender gender) {
+	public void setGender(final Gender gender) {
 		ValidationUtils.assertNotNull(gender);
 		this.gender = gender;
 	}
@@ -167,7 +186,7 @@ public abstract class Sportsman extends Observable implements ICompetitor {
 	 * @return True if the objects are equal, false otherwise.
 	 */
 	@Override
-	public boolean equals(Object obj) {
+	public boolean equals(final Object obj) {
 		if (this == obj) {
 			return true;
 		}
@@ -177,7 +196,7 @@ public abstract class Sportsman extends Observable implements ICompetitor {
 		if (!super.equals(obj)) {
 			return false;
 		}
-		Sportsman sportsman = (Sportsman) obj;
+		final Sportsman sportsman = (Sportsman) obj;
 		return name.equals(sportsman.name) &&
 				Double.compare(sportsman.age, age) == 0 &&
 				gender == sportsman.gender;

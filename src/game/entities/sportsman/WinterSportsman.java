@@ -6,15 +6,16 @@ import game.enums.League;
 import utilities.Point;
 import utilities.ValidationUtils;
 import game.Interfaces.IArena;
+import game.Interfaces.IWinterSportsman;
 
 /**
  * Maxwell Knight: 326905791
  * Dor Gabriel Israeli : 305092835
  *
  */
-public class WinterSportsman extends Sportsman {
+public class WinterSportsman extends Sportsman implements IWinterSportsman {
 	protected Discipline discipline;
-	private int id;
+	private final int id;
 
 	private static int lastId;
 
@@ -31,8 +32,8 @@ public class WinterSportsman extends Sportsman {
 	 * @throws NullPointerException     If discipline, gender, or name is null.
 	 * @throws IllegalArgumentException If age is not positive.
 	 */
-	public WinterSportsman(String name, double age, Gender gender,
-			double acceleration, double maxSpeed, Discipline discipline) {
+	public WinterSportsman(final String name, final double age, final Gender gender,
+			final double acceleration, final double maxSpeed, final Discipline discipline) {
 		super(name, age, gender, acceleration, maxSpeed);
 		ValidationUtils.assertNotNull(discipline);
 		this.discipline = discipline;
@@ -53,7 +54,7 @@ public class WinterSportsman extends Sportsman {
 	 * @param discipline The new discipline to set (must not be null).
 	 * @throws NullPointerException If discipline is null.
 	 */
-	public void setDiscipline(Discipline discipline) {
+	public void setDiscipline(final Discipline discipline) {
 		ValidationUtils.assertNotNull(discipline);
 		this.discipline = discipline;
 	}
@@ -72,8 +73,8 @@ public class WinterSportsman extends Sportsman {
 	 * on league bonus,
 	 * and resetting location and speed.
 	 */
-	public void initRace(IArena arena) {
-		double acceleration = this.entity.getAcceleration() + League.calcAccelerationBonus(this.age);
+	public void initRace(final IArena arena) {
+		final double acceleration = this.entity.getAcceleration() + League.calcAccelerationBonus(this.age);
 		this.entity.setAcceleration(acceleration);
 		this.entity.setLocation(new Point());
 		this.arena = arena;
@@ -90,7 +91,7 @@ public class WinterSportsman extends Sportsman {
 	 * @return True if the objects are equal, false otherwise.
 	 */
 	@Override
-	public boolean equals(Object obj) {
+	public boolean equals(final Object obj) {
 		if (this == obj) {
 			return true;
 		}
@@ -100,7 +101,7 @@ public class WinterSportsman extends Sportsman {
 		if (!super.equals(obj)) {
 			return false;
 		}
-		WinterSportsman wSportsman = (WinterSportsman) obj;
+		final WinterSportsman wSportsman = (WinterSportsman) obj;
 		return discipline == wSportsman.discipline;
 	}
 
