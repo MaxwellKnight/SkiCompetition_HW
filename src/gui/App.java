@@ -51,6 +51,7 @@ public class App extends JFrame implements Observer {
 
 	private final JPanelWithBackground screen;
 	private final JPanel controls;
+	final JFrame info_panel = new JFrame();
 	private final String surfaces[] = { "Powder", "Crud", "Ice" };
 	private final String competition[] = { "Snowboard", "Ski" };
 	private final String discipline[] = { "Slalom", "Giant_Slalom", "Downhill", "Freestyle" };
@@ -125,7 +126,6 @@ public class App extends JFrame implements Observer {
 	 * 
 	 */
 	public void handle_competitors_info() {
-		final JFrame info_panel = new JFrame();
 		info_panel.setPreferredSize(new Dimension(500, 300));
 		info_panel.setTitle("Competitors information");
 		info_panel.setLayout(new BorderLayout());
@@ -139,6 +139,7 @@ public class App extends JFrame implements Observer {
 	}
 
 	private void print_competitors_info(final DefaultTableModel model) {
+		model.setRowCount(0);
 		racers_labels.forEach((key, value) -> {
 			final WinterSportsman racer = (WinterSportsman) key;
 			final String name = racer.getName();
@@ -169,7 +170,6 @@ public class App extends JFrame implements Observer {
 		final int final_y = y;
 		SwingUtilities.invokeLater(() -> {
 			racer_label.setBounds(racer_label.getX(), final_y, RACER_SIZE, RACER_SIZE);
-			model.setRowCount(0);
 			print_competitors_info(model);
 			screen.revalidate();
 			screen.repaint();
@@ -360,6 +360,7 @@ public class App extends JFrame implements Observer {
 							comp.getDiscipline());
 					racer.addObserver(App.this);
 					winter_competition.addCompetitor(racer);
+					print_competitors_info(model);
 
 					final String path = "icons/" + kind + competition_gender.getSelectedItem() + ".png";
 					final JLabel racerIcon = createRacerLabel(path);
@@ -422,6 +423,7 @@ public class App extends JFrame implements Observer {
 			@Override
 			public void actionPerformed(final ActionEvent e) {
 				handle_competitors_info();
+				print_competitors_info(model);
 			}
 		});
 		game.add(start_btn);

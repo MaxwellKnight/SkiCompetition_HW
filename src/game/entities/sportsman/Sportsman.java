@@ -1,11 +1,14 @@
 package game.entities.sportsman;
 
 import java.awt.Color;
+import java.util.Date;
 import java.util.Observable;
 
 import game.Interfaces.IArena;
 import game.Interfaces.ICompetitor;
 import game.entities.MobileEntity;
+import game.entities.sportsman.State.SportsmanActive;
+import game.entities.sportsman.State.SportsmanState;
 import game.enums.Gender;
 import utilities.Point;
 import utilities.ValidationUtils;
@@ -23,6 +26,8 @@ public abstract class Sportsman extends Observable implements ICompetitor {
 	protected IArena arena;
 	protected MobileEntity entity;
 	protected Color color;
+	protected Date date;
+	protected SportsmanState state;
 
 	/**
 	 * Constructs a Sportsman with the specified attributes.
@@ -45,6 +50,7 @@ public abstract class Sportsman extends Observable implements ICompetitor {
 		this.age = age;
 		this.gender = gender;
 		this.entity = new MobileEntity(maxSpeed, acceleration);
+		this.state = new SportsmanActive(this);
 	}
 
 	public void run() {
@@ -66,6 +72,22 @@ public abstract class Sportsman extends Observable implements ICompetitor {
 				(double) this.entity.getLocation().getX(),
 				(double) this.arena.getLength()));
 		this.notifyObservers();
+	}
+
+	public void recordTime() {
+		date = new Date();
+	}
+
+	public Date getDate() {
+		return this.date;
+	}
+
+	public void changeState(SportsmanState state) {
+		this.state = state;
+	}
+
+	public void setDate(Date date) {
+		this.date = date;
 	}
 
 	public void move(final double friction) {
