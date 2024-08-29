@@ -9,13 +9,13 @@ import game.enums.League;
 
 public class SnowboardCompetition extends WinterCompetition {
 	public SnowboardCompetition(
-			IArena arena, int maxCompetitors,
-			Discipline discipline, League league, Gender gender) {
+			final IArena arena, final int maxCompetitors,
+			final Discipline discipline, final League league, final Gender gender) {
 		super(arena, maxCompetitors, discipline, league, gender);
 	}
 
 	@Override
-	public boolean isValidCompetitor(ICompetitor competitor) {
+	public boolean isValidCompetitor(final ICompetitor competitor) {
 		if (competitor instanceof Snowboarder)
 			return super.isValidCompetitor(competitor);
 		return false;

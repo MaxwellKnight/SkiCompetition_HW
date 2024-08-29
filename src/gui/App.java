@@ -2,18 +2,27 @@ package gui;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
-import java.awt.GridLayout;
 import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.WindowEvent;
 import java.lang.reflect.Constructor;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.awt.Component;
 
-import javax.swing.*;
+import javax.swing.BorderFactory;
+import javax.swing.BoxLayout;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.JTextArea;
+import javax.swing.SwingUtilities;
+import javax.swing.Timer;
 import javax.swing.table.DefaultTableModel;
 
 import game.GameEngine;
@@ -21,23 +30,26 @@ import game.Interfaces.IArena;
 import game.Interfaces.ICompetitor;
 import game.arena.WinterArena;
 import game.competition.Competition;
-import game.competition.SkiCompetition;
-import game.competition.SnowboardCompetition;
 import game.competition.WinterCompetition;
-import game.entities.sportsman.Skier;
-import game.entities.sportsman.Snowboarder;
 import game.entities.sportsman.WinterSportsman;
-import game.enums.*;
+import game.enums.Discipline;
+import game.enums.Gender;
+import game.enums.League;
+import game.enums.SnowSurface;
+import game.enums.WeatherCondition;
 import utilities.ValidationUtils;
 
+/**
+ * 
+ */
 public class App extends JFrame {
 
 	private WinterArena arena = null;
 	private Competition winter_competition = null;
-	private HashMap<ICompetitor, JLabel> racers_labels = new HashMap<>();
+	private final HashMap<ICompetitor, JLabel> racers_labels = new HashMap<>();
 
-	private JPanelWithBackground screen;
-	private JPanel controls;
+	private final JPanelWithBackground screen;
+	private final JPanel controls;
 	private final String surfaces[] = { "Powder", "Crud", "Ice" };
 	private final String competition[] = { "Snowboard", "Ski" };
 	private final String discipline[] = { "Slalom", "Giant_Slalom", "Downhill", "Freestyle" };
@@ -51,21 +63,30 @@ public class App extends JFrame {
 	private final int RACER_SIZE = 50;
 	private final int HEIGHT = 800;
 
-	private JTextArea arena_length = new JTextArea(1, 0);
-	private JComboBox arena_surface = new JComboBox(surfaces);
-	private JComboBox arena_weather = new JComboBox(weather);
+	private final JTextArea arena_length = new JTextArea(1, 0);
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	private final JComboBox arena_surface = new JComboBox(surfaces);
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	private final JComboBox arena_weather = new JComboBox(weather);
 
-	private JComboBox competition_kind = new JComboBox<>(competition);
-	private JTextArea competition_max_count = new JTextArea();
-	private JComboBox competition_discipline = new JComboBox<>(discipline);
-	private JComboBox competition_league = new JComboBox<>(league);
-	private JComboBox competition_gender = new JComboBox<>(gender);
+	@SuppressWarnings("rawtypes")
+	private final JComboBox competition_kind = new JComboBox<>(competition);
+	private final JTextArea competition_max_count = new JTextArea();
+	@SuppressWarnings("rawtypes")
+	private final JComboBox competition_discipline = new JComboBox<>(discipline);
+	@SuppressWarnings("rawtypes")
+	private final JComboBox competition_league = new JComboBox<>(league);
+	@SuppressWarnings("rawtypes")
+	private final JComboBox competition_gender = new JComboBox<>(gender);
 
-	private JTextArea competitor_name = new JTextArea();
-	private JTextArea competitor_age = new JTextArea();
-	private JTextArea competitor_max_speed = new JTextArea(1, 0);
-	private JTextArea competitor_acceleration = new JTextArea();
+	private final JTextArea competitor_name = new JTextArea();
+	private final JTextArea competitor_age = new JTextArea();
+	private final JTextArea competitor_max_speed = new JTextArea(1, 0);
+	private final JTextArea competitor_acceleration = new JTextArea();
 
+	/**
+	 * 
+	 */
 	public App() {
 		setPreferredSize(new Dimension(width + SIDEBAR, HEIGHT));
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -95,14 +116,50 @@ public class App extends JFrame {
 		setVisible(true);
 	}
 
-	private JLabel createLeftAlignedLabel(String text) {
-		JLabel label = new JLabel(text);
+	/**
+	 * 
+	 */
+	public void handle_competitors_info() {
+		final String[] column_names = { "Name", "Speed", "Max speed", "Location", "Finished" };
+
+		final JFrame info_panel = new JFrame();
+		info_panel.setPreferredSize(new Dimension(500, 300));
+		info_panel.setTitle("Competitors information");
+		info_panel.setLayout(new BorderLayout());
+
+		final DefaultTableModel model = new DefaultTableModel(column_names, 0);
+		final JTable table = new JTable(model);
+		final JScrollPane scroll_pane = new JScrollPane(table);
+		info_panel.add(scroll_pane, BorderLayout.CENTER);
+
+		info_panel.pack();
+		info_panel.setVisible(true);
+
+		final Timer timer = new Timer(500, new ActionListener() {
+			@Override
+			public void actionPerformed(final ActionEvent e) {
+				model.setRowCount(0); // Clear existing rows
+				print_competitors_info(model);
+
+				if (!winter_competition.hasActiveCompetitors()) {
+					((Timer) e.getSource()).stop(); // Stop the timer when competition is over
+				}
+			}
+		});
+		timer.start();
+	}
+
+	private JLabel createLeftAlignedLabel(final String text) {
+		final JLabel label = new JLabel(text);
 		label.setAlignmentX(Component.LEFT_ALIGNMENT);
 		return label;
 	}
 
+	/**
+	 * @return
+	 */
 	private JPanel build_arena() {
-		JPanel arena_panel = new JPanel();
+		final JPanel arena_panel = new JPanel();
 		arena_panel.setVisible(true);
 		arena_panel.setPreferredSize(new Dimension(SIDEBAR, 170));
 		arena_panel.setLayout(new BoxLayout(arena_panel, BoxLayout.Y_AXIS));
@@ -117,11 +174,11 @@ public class App extends JFrame {
 		arena_panel.add(createLeftAlignedLabel("Weather Condition"));
 		arena_panel.add(arena_weather);
 
-		JButton btn = new JButton("Build Arena");
+		final JButton btn = new JButton("Build Arena");
 		btn.addActionListener(new ActionListener() {
 
 			@Override
-			public void actionPerformed(ActionEvent e) {
+			public void actionPerformed(final ActionEvent e) {
 				if (!ValidationUtils.assertStringToNumber(arena_length.getText(),
 						"Please enter a valid number for competition max count")) {
 					return;
@@ -130,8 +187,8 @@ public class App extends JFrame {
 				width = Integer.parseInt(arena_length.getText());
 				screen.setSize(width, HEIGHT);
 				setSize(width + SIDEBAR, HEIGHT);
-				int surface_index = arena_surface.getSelectedIndex();
-				int weather_index = arena_weather.getSelectedIndex();
+				final int surface_index = arena_surface.getSelectedIndex();
+				final int weather_index = arena_weather.getSelectedIndex();
 				screen.setBackgroundImage(paths[weather_index]);
 				arena = new WinterArena(
 						width,
@@ -145,8 +202,11 @@ public class App extends JFrame {
 		return arena_panel;
 	}
 
+	/**
+	 * @return
+	 */
 	private JPanel build_competition() {
-		JPanel competition_panel = new JPanel();
+		final JPanel competition_panel = new JPanel();
 		competition_panel.setVisible(true);
 		competition_panel.setPreferredSize(new Dimension(SIDEBAR, 260));
 		competition_panel.setLayout(new BoxLayout(competition_panel, BoxLayout.Y_AXIS));
@@ -168,10 +228,10 @@ public class App extends JFrame {
 		competition_panel.add(createLeftAlignedLabel("Gender"));
 		competition_panel.add(competition_gender);
 
-		JButton btn = new JButton("Create Competition");
+		final JButton btn = new JButton("Create Competition");
 		btn.addActionListener(new ActionListener() {
 			@Override
-			public void actionPerformed(ActionEvent e) {
+			public void actionPerformed(final ActionEvent e) {
 				if (arena == null) {
 					ValidationUtils.alert("Must build arena before competition");
 					return;
@@ -181,16 +241,17 @@ public class App extends JFrame {
 					return;
 				}
 
-				int max_count = Integer.parseInt(competition_max_count.getText());
+				final int max_count = Integer.parseInt(competition_max_count.getText());
 				if (max_count <= 0 || max_count > 20) {
 					ValidationUtils.alert("Max count number must be in the range of [1,20]");
 					return;
 				}
 
 				try {
-					Class<?> loaded_class = Class
+					final Class<?> loaded_class = Class
 							.forName("game.competition." + competition_kind.getSelectedItem() + "Competition");
-					Constructor<?> ctor = loaded_class.getConstructor(WinterArena.class, int.class, Discipline.class,
+					final Constructor<?> ctor = loaded_class.getConstructor(IArena.class, int.class,
+							Discipline.class,
 							League.class, Gender.class);
 					winter_competition = (WinterCompetition) ctor.newInstance(
 							arena,
@@ -198,8 +259,9 @@ public class App extends JFrame {
 							Discipline.values()[competition_discipline.getSelectedIndex()],
 							League.values()[competition_league.getSelectedIndex()],
 							Gender.values()[competition_gender.getSelectedIndex()]);
-				} catch (Exception error) {
+				} catch (final Exception error) {
 					ValidationUtils.alert(error.toString());
+					System.out.println(error.toString());
 				}
 			}
 
@@ -209,8 +271,11 @@ public class App extends JFrame {
 		return competition_panel;
 	}
 
+	/**
+	 * @return
+	 */
 	private JPanel add_competitor() {
-		JPanel competitor = new JPanel();
+		final JPanel competitor = new JPanel();
 		competitor.setVisible(true);
 		competitor.setPreferredSize(new Dimension(SIDEBAR, 200));
 		competitor.setLayout(new BoxLayout(competitor, BoxLayout.Y_AXIS));
@@ -229,11 +294,11 @@ public class App extends JFrame {
 		competitor.add(createLeftAlignedLabel("Acceleration"));
 		competitor.add(competitor_acceleration);
 
-		JButton btn = new JButton("Add Competitor");
+		final JButton btn = new JButton("Add Competitor");
 		btn.addActionListener(new ActionListener() {
 
 			@Override
-			public void actionPerformed(ActionEvent e) {
+			public void actionPerformed(final ActionEvent e) {
 				if (arena == null || winter_competition == null) {
 					ValidationUtils.alert("Must build arena and create competition before adding competitors");
 					return;
@@ -247,19 +312,19 @@ public class App extends JFrame {
 					return;
 				}
 
-				String name = competitor_name.getText();
-				double age = Double.parseDouble(competitor_age.getText());
-				double max_speed = Double.parseDouble(competitor_max_speed.getText());
-				double acceleration = Double.parseDouble(competitor_acceleration.getText());
-				WinterCompetition comp = (WinterCompetition) winter_competition;
-				String kind = (String) competition_kind.getSelectedItem();
+				final String name = competitor_name.getText();
+				final double age = Double.parseDouble(competitor_age.getText());
+				final double max_speed = Double.parseDouble(competitor_max_speed.getText());
+				final double acceleration = Double.parseDouble(competitor_acceleration.getText());
+				final WinterCompetition comp = (WinterCompetition) winter_competition;
+				final String kind = (String) competition_kind.getSelectedItem();
 
 				try {
-					Class<?> loaded_class = Class.forName("game.entities.sportsman." + kind + "er");
-					Constructor<?> ctor = loaded_class.getConstructor(String.class, double.class, Gender.class,
+					final Class<?> loaded_class = Class.forName("game.entities.sportsman." + kind + "er");
+					final Constructor<?> ctor = loaded_class.getConstructor(String.class, double.class, Gender.class,
 							double.class, double.class, Discipline.class);
 
-					WinterSportsman racer = (WinterSportsman) ctor.newInstance(
+					final WinterSportsman racer = (WinterSportsman) ctor.newInstance(
 							name,
 							age,
 							comp.getGender(),
@@ -268,10 +333,10 @@ public class App extends JFrame {
 							comp.getDiscipline());
 					winter_competition.addCompetitor(racer);
 
-					String path = "icons/" + kind + competition_gender.getSelectedItem() + ".png";
-					JLabel racerIcon = createRacerLabel(path);
+					final String path = "icons/" + kind + competition_gender.getSelectedItem() + ".png";
+					final JLabel racerIcon = createRacerLabel(path);
 
-					int x = (int) racer.getLocation().getX();
+					final int x = (int) racer.getLocation().getX();
 					racerIcon.setBounds(RACER_SIZE * racers_labels.size(), x, RACER_SIZE, RACER_SIZE);
 					screen.add(racerIcon);
 					racers_labels.put(racer, racerIcon);
@@ -282,7 +347,7 @@ public class App extends JFrame {
 					}
 					screen.revalidate();
 					screen.repaint();
-				} catch (Exception error) {
+				} catch (final Exception error) {
 					System.out.println(error);
 					ValidationUtils.alert("Competitor is not fit to competition! Choose another competitor.");
 				}
@@ -292,28 +357,35 @@ public class App extends JFrame {
 		return competitor;
 	}
 
-	private JLabel createRacerLabel(String iconPath) {
+	/**
+	 * @param iconPath
+	 * @return
+	 */
+	private JLabel createRacerLabel(final String iconPath) {
 		ImageIcon loaded_img = new ImageIcon(iconPath);
-		Image scaled = loaded_img.getImage().getScaledInstance(RACER_SIZE, RACER_SIZE, Image.SCALE_SMOOTH);
+		final Image scaled = loaded_img.getImage().getScaledInstance(RACER_SIZE, RACER_SIZE, Image.SCALE_SMOOTH);
 		loaded_img = new ImageIcon(scaled);
-		JLabel racerIcon = new JLabel(loaded_img);
+		final JLabel racerIcon = new JLabel(loaded_img);
 		racerIcon.setVisible(true);
 		return racerIcon;
 	}
 
+	/**
+	 * @return
+	 */
 	private JPanel game() {
-		JPanel game = new JPanel();
+		final JPanel game = new JPanel();
 		game.setVisible(true);
 		game.setPreferredSize(new Dimension(SIDEBAR, 200));
 		game.setLayout(new BoxLayout(game, BoxLayout.Y_AXIS));
 		game.setBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, Color.GRAY));
 
-		JButton start_btn = new JButton("Start Competition");
+		final JButton start_btn = new JButton("Start Competition");
 		start_btn.addActionListener(new ActionListener() {
 			@Override
-			public void actionPerformed(ActionEvent e) {
+			public void actionPerformed(final ActionEvent e) {
 				new Thread(() -> {
-					GameEngine gameEngine = GameEngine.getInstance();
+					final GameEngine gameEngine = GameEngine.getInstance();
 					gameEngine.startRace(winter_competition);
 
 					while (winter_competition.hasActiveCompetitors()) {
@@ -328,15 +400,23 @@ public class App extends JFrame {
 							screen.revalidate();
 							screen.repaint();
 						});
+
+						// Sleep to avoid hogging the CPU
+						try {
+							Thread.sleep(100); // Adjust this as needed
+						} catch (InterruptedException ex) {
+							ex.printStackTrace();
+						}
 					}
+
+					// Once the competition is over, do any necessary cleanup here.
 				}).start();
 			}
 		});
-
-		JButton info_btn = new JButton("Show Info");
+		final JButton info_btn = new JButton("Show Info");
 		info_btn.addActionListener(new ActionListener() {
 			@Override
-			public void actionPerformed(ActionEvent e) {
+			public void actionPerformed(final ActionEvent e) {
 				handle_competitors_info();
 			}
 		});
@@ -345,62 +425,16 @@ public class App extends JFrame {
 		return game;
 	}
 
-	public void handle_competitors_info() {
-		String[] column_names = { "Name", "Speed", "Max speed", "Location", "Finished" };
-
-		JFrame info_panel = new JFrame();
-		info_panel.setPreferredSize(new Dimension(500, 300));
-		info_panel.setTitle("Competitors information");
-		info_panel.setLayout(new BorderLayout());
-
-		DefaultTableModel model = new DefaultTableModel(column_names, 0);
-		JTable table = new JTable(model);
-		JScrollPane scroll_pane = new JScrollPane(table);
-		info_panel.add(scroll_pane, BorderLayout.CENTER);
-
-		info_panel.pack();
-		info_panel.setVisible(true);
-
-		new Thread(() -> {
-			while (winter_competition.hasActiveCompetitors()) {
-				SwingUtilities.invokeLater(() -> {
-					model.setRowCount(0); // Clear existing rows
-					print_competitors_info(model);
-				});
-
-				try {
-					Thread.sleep(500);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
-			}
-		}).start();
-
-		Timer timer = new Timer(100, new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				model.fireTableDataChanged();
-				table.revalidate();
-				table.repaint();
-
-				if (!winter_competition.hasActiveCompetitors()) {
-					((Timer) e.getSource()).stop();
-				}
-			}
-		});
-		timer.start();
-	}
-
-	private void print_competitors_info(DefaultTableModel model) {
+	private void print_competitors_info(final DefaultTableModel model) {
 		racers_labels.forEach((key, value) -> {
-			WinterSportsman racer = (WinterSportsman) key;
-			String name = racer.getName();
-			int y = (int) racer.getLocation().getX();
+			final WinterSportsman racer = (WinterSportsman) key;
+			final String name = racer.getName();
+			final int y = (int) racer.getLocation().getX();
 			System.out.println(y);
-			double maxSpeed = racer.getMaxSpeed();
-			double speed = racer.getSpeed();
-			boolean isFinished = arena.isFinished(racer);
-			String[] row = {
+			final double maxSpeed = racer.getMaxSpeed();
+			final double speed = racer.getSpeed();
+			final boolean isFinished = arena.isFinished(racer);
+			final String[] row = {
 					name,
 					Double.toString(speed),
 					Double.toString(maxSpeed),

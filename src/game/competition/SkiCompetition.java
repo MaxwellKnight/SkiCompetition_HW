@@ -2,7 +2,6 @@ package game.competition;
 
 import game.Interfaces.IArena;
 import game.Interfaces.ICompetitor;
-import game.arena.WinterArena;
 import game.enums.Discipline;
 import game.enums.Gender;
 import game.enums.League;
@@ -21,8 +20,8 @@ public class SkiCompetition extends WinterCompetition {
 	 * @param gender         The gender of competitors allowed in the competition.
 	 */
 	public SkiCompetition(
-			IArena arena, int maxCompetitors,
-			Discipline discipline, League league, Gender gender) {
+			final IArena arena, final int maxCompetitors,
+			final Discipline discipline, final League league, final Gender gender) {
 		super(arena, maxCompetitors, discipline, league, gender);
 	}
 
@@ -35,7 +34,7 @@ public class SkiCompetition extends WinterCompetition {
 	 *         otherwise.
 	 */
 	@Override
-	public boolean isValidCompetitor(ICompetitor competitor) {
+	public boolean isValidCompetitor(final ICompetitor competitor) {
 		if (competitor instanceof Skier)
 			return super.isValidCompetitor(competitor);
 		return false;
