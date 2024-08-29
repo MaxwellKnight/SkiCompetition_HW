@@ -1,7 +1,7 @@
 package game.competition;
 
+import game.Interfaces.IArena;
 import game.Interfaces.ICompetitor;
-import game.arena.WinterArena;
 import game.entities.sportsman.WinterSportsman;
 import game.enums.Discipline;
 import game.enums.Gender;
@@ -32,8 +32,8 @@ public class WinterCompetition extends Competition {
 	 *                       competition.
 	 */
 	public WinterCompetition(
-			WinterArena arena, int maxCompetitors,
-			Discipline discipline, League league, Gender gender) {
+			final IArena arena, final int maxCompetitors,
+			final Discipline discipline, final League league, final Gender gender) {
 		super(arena, maxCompetitors);
 		ValidationUtils.assertNotNull(league);
 		ValidationUtils.assertNotNull(discipline);
@@ -51,7 +51,7 @@ public class WinterCompetition extends Competition {
 	 * @return True if the competitor is valid, false otherwise.
 	 */
 	@Override
-	public boolean isValidCompetitor(ICompetitor competitor) {
+	public boolean isValidCompetitor(final ICompetitor competitor) {
 		return league.isInLeague(((WinterSportsman) competitor).getAge())
 				&& ((WinterSportsman) competitor).getGender() == gender
 				&& ((WinterSportsman) competitor).getDiscipline() == discipline;

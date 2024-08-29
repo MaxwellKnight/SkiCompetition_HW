@@ -1,7 +1,7 @@
 package game.competition;
 
+import game.Interfaces.IArena;
 import game.Interfaces.ICompetitor;
-import game.arena.WinterArena;
 import game.entities.sportsman.Snowboarder;
 import game.enums.Discipline;
 import game.enums.Gender;
@@ -9,7 +9,7 @@ import game.enums.League;
 
 public class SnowboardCompetition extends WinterCompetition {
 	public SnowboardCompetition(
-			WinterArena arena, int maxCompetitors,
+			IArena arena, int maxCompetitors,
 			Discipline discipline, League league, Gender gender) {
 		super(arena, maxCompetitors, discipline, league, gender);
 	}
