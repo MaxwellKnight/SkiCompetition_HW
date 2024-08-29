@@ -111,7 +111,7 @@ public class App extends JFrame implements Observer {
 	public void addRacerLabel(ICompetitor competitor, String path) {
 		Sportsman racer = (Sportsman) competitor;
 		JLabel racerLabel = createRacerLabel(path);
-		racerLabel.setBounds(RACER_SIZE * racersLabels.size(), 0, RACER_SIZE, RACER_SIZE);
+		racerLabel.setBounds(RACER_SIZE * racersLabels.size(), x, RACER_SIZE, RACER_SIZE);
 		System.out.println(path);
 		screen.add(racerLabel);
 		racersLabels.put(racer, racerLabel);
@@ -137,9 +137,6 @@ public class App extends JFrame implements Observer {
 			screen.repaint();
 		});
 	}
-
-	// Getter and setter methods for arena, winterCompetition, etc.
-	// Methods for creating racer labels, updating UI, etc.
 
 	public static void main(String[] args) {
 		SwingUtilities.invokeLater(App::new);
