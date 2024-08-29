@@ -92,15 +92,13 @@ public class WinterSportsman extends Sportsman implements IWinterSportsman {
 	 */
 	@Override
 	public boolean equals(final Object obj) {
-		if (this == obj) {
+		if (this == obj)
 			return true;
-		}
-		if (obj == null || getClass() != obj.getClass()) {
+		if (obj == null || getClass() != obj.getClass())
 			return false;
-		}
-		if (!super.equals(obj)) {
+		if (!super.equals(obj))
 			return false;
-		}
+
 		final WinterSportsman wSportsman = (WinterSportsman) obj;
 		return discipline == wSportsman.discipline;
 	}

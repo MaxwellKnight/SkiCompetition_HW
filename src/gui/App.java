@@ -9,6 +9,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.lang.reflect.Constructor;
 import java.util.HashMap;
+import java.util.Observable;
+import java.util.Observer;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
@@ -22,7 +24,6 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextArea;
 import javax.swing.SwingUtilities;
-import javax.swing.Timer;
 import javax.swing.table.DefaultTableModel;
 
 import game.GameEngine;
@@ -42,7 +43,7 @@ import utilities.ValidationUtils;
 /**
  * 
  */
-public class App extends JFrame {
+public class App extends JFrame implements Observer {
 
 	private WinterArena arena = null;
 	private Competition winter_competition = null;
@@ -83,6 +84,7 @@ public class App extends JFrame {
 	private final JTextArea competitor_age = new JTextArea();
 	private final JTextArea competitor_max_speed = new JTextArea(1, 0);
 	private final JTextArea competitor_acceleration = new JTextArea();
+	final DefaultTableModel model;
 
 	/**
 	 * 
@@ -110,6 +112,9 @@ public class App extends JFrame {
 		controls.add(game());
 		controls.setVisible(true);
 
+		final String[] column_names = { "Name", "Speed", "Max speed", "Location", "Finished" };
+		model = new DefaultTableModel(column_names, 0);
+
 		add(screen, BorderLayout.CENTER);
 		add(controls, BorderLayout.EAST);
 		pack();
@@ -120,33 +125,55 @@ public class App extends JFrame {
 	 * 
 	 */
 	public void handle_competitors_info() {
-		final String[] column_names = { "Name", "Speed", "Max speed", "Location", "Finished" };
-
 		final JFrame info_panel = new JFrame();
 		info_panel.setPreferredSize(new Dimension(500, 300));
 		info_panel.setTitle("Competitors information");
 		info_panel.setLayout(new BorderLayout());
 
-		final DefaultTableModel model = new DefaultTableModel(column_names, 0);
 		final JTable table = new JTable(model);
 		final JScrollPane scroll_pane = new JScrollPane(table);
 		info_panel.add(scroll_pane, BorderLayout.CENTER);
 
 		info_panel.pack();
 		info_panel.setVisible(true);
+	}
 
-		final Timer timer = new Timer(500, new ActionListener() {
-			@Override
-			public void actionPerformed(final ActionEvent e) {
-				model.setRowCount(0);
-				print_competitors_info(model);
-
-				if (!winter_competition.hasActiveCompetitors()) {
-					((Timer) e.getSource()).stop();
-				}
-			}
+	private void print_competitors_info(final DefaultTableModel model) {
+		racers_labels.forEach((key, value) -> {
+			final WinterSportsman racer = (WinterSportsman) key;
+			final String name = racer.getName();
+			final int y = (int) racer.getLocation().getX();
+			final double maxSpeed = racer.getMaxSpeed();
+			final double speed = racer.getSpeed();
+			final boolean isFinished = arena.isFinished(racer);
+			final String[] row = {
+					name,
+					Double.toString(speed),
+					Double.toString(maxSpeed),
+					Integer.toString(y),
+					isFinished ? "Yes" : "No"
+			};
+			model.addRow(row);
 		});
-		timer.start();
+	}
+
+	@Override
+	public synchronized void update(Observable o, Object arg) {
+		ICompetitor racer = (ICompetitor) o;
+		JLabel racer_label = racers_labels.get(racer);
+
+		int y = (int) racer.getLocation().getX();
+		if (y > screen.getHeight())
+			y = screen.getHeight() - RACER_SIZE;
+
+		final int final_y = y;
+		SwingUtilities.invokeLater(() -> {
+			racer_label.setBounds(racer_label.getX(), final_y, RACER_SIZE, RACER_SIZE);
+			model.setRowCount(0);
+			print_competitors_info(model);
+			screen.revalidate();
+			screen.repaint();
+		});
 	}
 
 	private JLabel createLeftAlignedLabel(final String text) {
@@ -331,6 +358,7 @@ public class App extends JFrame {
 							acceleration,
 							max_speed,
 							comp.getDiscipline());
+					racer.addObserver(App.this);
 					winter_competition.addCompetitor(racer);
 
 					final String path = "icons/" + kind + competition_gender.getSelectedItem() + ".png";
@@ -385,36 +413,8 @@ public class App extends JFrame {
 		start_btn.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(final ActionEvent e) {
-				new Thread(() -> {
-					final GameEngine gameEngine = GameEngine.getInstance();
-					gameEngine.startRace(winter_competition);
-
-					while (winter_competition.hasActiveCompetitors()) {
-						SwingUtilities.invokeLater(() -> {
-							racers_labels.forEach((key, value) -> {
-								int y = (int) key.getLocation().getX();
-								if (y > screen.getHeight())
-									y = screen.getHeight() - RACER_SIZE;
-
-								value.setBounds(value.getX(), y, RACER_SIZE, RACER_SIZE);
-							});
-							screen.revalidate();
-							screen.repaint();
-						});
-
-						try {
-							Thread.sleep(100);
-						} catch (final InterruptedException ex) {
-							ex.printStackTrace();
-						}
-					}
-
-					SwingUtilities.invokeLater(() -> {
-						for (final ActionListener al : info_btn.getActionListeners()) {
-							info_btn.removeActionListener(al);
-						}
-					});
-				}).start();
+				final GameEngine gameEngine = GameEngine.getInstance();
+				gameEngine.startRace(winter_competition);
 			}
 		});
 
@@ -429,23 +429,4 @@ public class App extends JFrame {
 		return game;
 	}
 
-	private void print_competitors_info(final DefaultTableModel model) {
-		racers_labels.forEach((key, value) -> {
-			final WinterSportsman racer = (WinterSportsman) key;
-			final String name = racer.getName();
-			final int y = (int) racer.getLocation().getX();
-			System.out.println(y);
-			final double maxSpeed = racer.getMaxSpeed();
-			final double speed = racer.getSpeed();
-			final boolean isFinished = arena.isFinished(racer);
-			final String[] row = {
-					name,
-					Double.toString(speed),
-					Double.toString(maxSpeed),
-					Integer.toString(y),
-					isFinished ? "Yes" : "No"
-			};
-			model.addRow(row);
-		});
-	}
 }

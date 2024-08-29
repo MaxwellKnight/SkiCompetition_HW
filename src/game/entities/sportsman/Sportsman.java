@@ -1,14 +1,14 @@
 package game.entities.sportsman;
 
 import java.awt.Color;
+import java.util.Observable;
 
-import game.entities.MobileEntity;
-import game.enums.Gender;
-import utilities.ValidationUtils;
-import utilities.Point;
 import game.Interfaces.IArena;
 import game.Interfaces.ICompetitor;
-import java.util.*;
+import game.entities.MobileEntity;
+import game.enums.Gender;
+import utilities.Point;
+import utilities.ValidationUtils;
 
 /**
  * Maxwell Knight: 326905791
@@ -22,7 +22,6 @@ public abstract class Sportsman extends Observable implements ICompetitor {
 	protected Gender gender;
 	protected IArena arena;
 	protected MobileEntity entity;
-	protected Vector<Observer> observers;
 	protected Color color;
 
 	/**
@@ -45,7 +44,6 @@ public abstract class Sportsman extends Observable implements ICompetitor {
 		this.name = name;
 		this.age = age;
 		this.gender = gender;
-		this.observers = new Vector<>();
 		this.entity = new MobileEntity(maxSpeed, acceleration);
 	}
 
@@ -55,6 +53,8 @@ public abstract class Sportsman extends Observable implements ICompetitor {
 
 		while (!this.arena.isFinished(this.entity)) {
 			this.entity.move(this.arena.getFriction());
+			this.setChanged();
+			this.notifyObservers();
 			try {
 				Thread.sleep(100);
 			} catch (final InterruptedException e) {
@@ -66,26 +66,6 @@ public abstract class Sportsman extends Observable implements ICompetitor {
 				(double) this.entity.getLocation().getX(),
 				(double) this.arena.getLength()));
 		this.notifyObservers();
-	}
-
-	@Override
-	public void addObserver(final Observer observer) {
-		this.observers.add(observer);
-	}
-
-	@Override
-	public void deleteObserver(final Observer observer) {
-		this.observers.remove(observer);
-	}
-
-	@Override
-	public void notifyObservers() {
-		final Iterator<Observer> iter = this.observers.iterator();
-
-		while (iter.hasNext()) {
-			final Observer current = iter.next();
-			current.update(this, current);
-		}
 	}
 
 	public void move(final double friction) {
@@ -105,7 +85,7 @@ public abstract class Sportsman extends Observable implements ICompetitor {
 		return color;
 	}
 
-	public void setColor(Color color) {
+	public void setColor(final Color color) {
 		this.color = color;
 	}
 

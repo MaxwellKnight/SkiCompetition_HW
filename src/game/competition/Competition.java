@@ -74,7 +74,7 @@ public abstract class Competition implements Observer {
 	 * Plays a turn in the competition, advancing active competitors based on arena
 	 * conditions.
 	 */
-	public synchronized void launch_racers() {
+	public void launch_racers() {
 		final Iterator<ICompetitor> iter = activeCompetitors.iterator();
 
 		while (iter.hasNext()) {
@@ -90,12 +90,14 @@ public abstract class Competition implements Observer {
 	 * @param observable The observable object that notifies the observer.
 	 */
 	@Override
-	public synchronized void update(final Observable observable, final Object o) {
+	public synchronized void update(Observable observable, Object o) {
 		final ICompetitor competitor = (ICompetitor) observable;
-		activeCompetitors.remove(competitor);
-		finishedCompetitors.add(competitor);
-		if (activeCompetitors.size() == 0)
-			isDone = true;
+		if (arena.isFinished(competitor)) {
+			activeCompetitors.remove(competitor);
+			finishedCompetitors.add(competitor);
+			if (activeCompetitors.size() == 0)
+				isDone = true;
+		}
 	}
 
 	public boolean getIsDone() {
