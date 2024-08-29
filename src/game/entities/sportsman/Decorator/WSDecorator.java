@@ -1,5 +1,7 @@
 package game.entities.sportsman.Decorator;
 
+import java.awt.Color;
+
 import game.Interfaces.IArena;
 import game.Interfaces.IWinterSportsman;
 import game.enums.Discipline;
@@ -14,6 +16,14 @@ public class WSDecorator implements IWinterSportsman {
 
 	public int getId() {
 		return _wrapedSportsman.getId();
+	}
+
+	public Color getColor() {
+		return _wrapedSportsman.getColor();
+	}
+
+	public void setColor(Color color) {
+		_wrapedSportsman.setColor(color);
 	}
 
 	public void setAcceleration(double acceleration) {

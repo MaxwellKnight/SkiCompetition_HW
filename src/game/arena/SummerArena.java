@@ -16,7 +16,7 @@ public class SummerArena implements IArena {
 	/**
 	 * Constructs a SummerArena with the specified attributes.
 	 *
-	 * @param length    The length of the winter arena (must be positive).
+	 * @param length    The length of the summer arena (must be positive).
 	 * @param surface   The snow surface of the arena (must not be null).
 	 * @param condition The weather condition of the arena (must not be null).
 	 * @throws IllegalArgumentException If length is not positive.
@@ -52,7 +52,7 @@ public class SummerArena implements IArena {
 	}
 
 	/**
-	 * Sets the length of the winter arena.
+	 * Sets the length of the summer arena.
 	 *
 	 * @param length The new length to set (must be positive).
 	 * @throws IllegalArgumentException If length is not positive.
@@ -83,9 +83,9 @@ public class SummerArena implements IArena {
 	}
 
 	/**
-	 * Retrieves the length of the winter arena.
+	 * Retrieves the length of the summer arena.
 	 *
-	 * @return The length of the winter arena.
+	 * @return The length of the summer arena.
 	 */
 	public double getLength() {
 		return this.length;
@@ -121,9 +121,9 @@ public class SummerArena implements IArena {
 	}
 
 	/**
-	 * Generates a string representation of the winter arena.
+	 * Generates a string representation of the summer arena.
 	 *
-	 * @return A string representation of the winter arena.
+	 * @return A string representation of the summer arena.
 	 */
 	@Override
 	public String toString() {

@@ -17,7 +17,7 @@ public class WinterSportsman extends Sportsman implements IWinterSportsman {
 	protected Discipline discipline;
 	private final int id;
 
-	private static int lastId;
+	private static int lastId = 0;
 
 	/**
 	 * Constructs a WinterSportsman with the specified attributes.
@@ -41,7 +41,8 @@ public class WinterSportsman extends Sportsman implements IWinterSportsman {
 	}
 
 	private static int generateId() {
-		return WinterSportsman.lastId + 1;
+		WinterSportsman.lastId += 1;
+		return WinterSportsman.lastId;
 	}
 
 	public int getId() {

@@ -1,11 +1,5 @@
 package utilities;
 
-import game.GameEngine;
-import game.arena.WinterArena;
-import game.competition.SkiCompetition;
-import game.entities.sportsman.Skier;
-import game.entities.sportsman.Snowboarder;
-import game.enums.*;
 import gui.App;
 
 /**

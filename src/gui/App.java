@@ -49,13 +49,18 @@ public class App extends JFrame implements Observer {
 		return racersLabels;
 	}
 
-	public InfoPanel getInfoPanel() {
-		return this.infoPanel;
+	public InfoFrame getInfoPanel() {
+		return this.infoFrame;
 	}
 
 	private final JPanelWithBackground screen;
+
+	public JPanelWithBackground getScreen() {
+		return this.screen;
+	}
+
 	private final JPanel controls;
-	private final InfoPanel infoPanel;
+	private final InfoFrame infoFrame;
 	private final ArenaPanel arenaPanel;
 	private final CompetitionPanel competitionPanel;
 	private final CompetitorPanel competitorPanel;
@@ -81,7 +86,7 @@ public class App extends JFrame implements Observer {
 		controls = new JPanel();
 		controls.setPreferredSize(new Dimension(SIDEBAR, HEIGHT));
 
-		infoPanel = new InfoPanel();
+		infoFrame = new InfoFrame();
 		arenaPanel = new ArenaPanel(this, screen);
 		competitionPanel = new CompetitionPanel(this);
 		competitorPanel = new CompetitorPanel(this, competitionPanel);
@@ -111,13 +116,12 @@ public class App extends JFrame implements Observer {
 	public void addRacerLabel(ICompetitor competitor, String path) {
 		Sportsman racer = (Sportsman) competitor;
 		JLabel racerLabel = createRacerLabel(path);
-		racerLabel.setBounds(RACER_SIZE * racersLabels.size(), x, RACER_SIZE, RACER_SIZE);
-		System.out.println(path);
+		racerLabel.setBounds(RACER_SIZE * racersLabels.size(), 0, RACER_SIZE, RACER_SIZE);
 		screen.add(racerLabel);
 		racersLabels.put(racer, racerLabel);
 		screen.revalidate();
 		screen.repaint();
-		infoPanel.updateCompetitorInfo(racersLabels, arena);
+		infoFrame.updateCompetitorInfo(racersLabels, arena);
 	}
 
 	@Override
@@ -132,7 +136,7 @@ public class App extends JFrame implements Observer {
 		final int finalY = y;
 		SwingUtilities.invokeLater(() -> {
 			racerLabel.setBounds(racerLabel.getX(), finalY, RACER_SIZE, RACER_SIZE);
-			infoPanel.updateCompetitorInfo(racersLabels, arena);
+			infoFrame.updateCompetitorInfo(racersLabels, arena);
 			screen.revalidate();
 			screen.repaint();
 		});

@@ -12,15 +12,15 @@ import game.Interfaces.ICompetitor;
 import game.entities.sportsman.WinterSportsman;
 import utilities.Point;
 
-public class InfoPanel extends JFrame {
+public class InfoFrame extends JFrame {
 	private final DefaultTableModel model;
 
-	public InfoPanel() {
+	public InfoFrame() {
 		setPreferredSize(new Dimension(500, 300));
 		setTitle("Competitors information");
 		setLayout(new BorderLayout());
 
-		String[] columnNames = { "Name", "Speed", "Max speed", "Location", "Finished" };
+		String[] columnNames = { "Id", "Name", "Speed", "Max speed", "Location", "Finished" };
 		model = new DefaultTableModel(columnNames, 0);
 
 		JTable table = new JTable(model);
@@ -35,6 +35,7 @@ public class InfoPanel extends JFrame {
 		racersLabels.forEach((key, value) -> {
 			WinterSportsman racer = (WinterSportsman) key;
 
+			String id = Integer.toString(racer.getId());
 			String name = racer.getName();
 			double speed = racer.getSpeed();
 			double maxSpeed = racer.getMaxSpeed();
@@ -45,7 +46,7 @@ public class InfoPanel extends JFrame {
 			String locationString = String.format("(%.2f, %.2f)", location.getX(), location.getY());
 
 			// Add competitor info to the table
-			model.addRow(new Object[] { name, speed, maxSpeed, locationString, finished });
+			model.addRow(new Object[] { id, name, speed, maxSpeed, locationString, finished });
 		});
 	}
 }

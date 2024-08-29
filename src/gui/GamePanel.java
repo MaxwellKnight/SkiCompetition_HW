@@ -2,6 +2,7 @@ package gui;
 
 import javax.swing.*;
 import game.GameEngine;
+import game.arena.WinterArena;
 
 public class GamePanel extends JPanel {
 	private final App app;
@@ -27,7 +28,9 @@ public class GamePanel extends JPanel {
 	}
 
 	private void showInfo() {
-		app.getInfoPanel().setVisible(true);
-		app.getInfoPanel().updateCompetitorInfo(app.getRacersLabels(), app.getArena());
+		if (app.getArena() instanceof WinterArena) {
+			app.getInfoPanel().setVisible(true);
+			app.getInfoPanel().updateCompetitorInfo(app.getRacersLabels(), app.getArena());
+		}
 	}
 }

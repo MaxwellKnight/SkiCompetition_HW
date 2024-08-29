@@ -37,8 +37,12 @@ public class CompetitorPanel extends JPanel {
 		add(competitorAcceleration);
 
 		JButton addButton = new JButton("Add Competitor");
+		JButton previewButton = new JButton("Preview");
 		addButton.addActionListener(e -> addCompetitor());
 		add(addButton);
+		add(previewButton);
+		previewButton.addActionListener(
+				e -> new CompetitorPreviewFrame(app.getRacersLabels(), app.getScreen()).setVisible(true));
 	}
 
 	private void addCompetitor() {
