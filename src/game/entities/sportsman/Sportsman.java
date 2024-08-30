@@ -84,6 +84,9 @@ public abstract class Sportsman extends Observable implements ICompetitor {
 
 	public void changeState(SportsmanState state) {
 		this.state = state;
+		this.state.action();
+		this.setChanged();
+		this.notifyObservers();
 	}
 
 	public void setDate(Date date) {
@@ -112,7 +115,7 @@ public abstract class Sportsman extends Observable implements ICompetitor {
 	}
 
 	public double getAcceleration() {
-		return this.getAcceleration();
+		return entity.getAcceleration();
 	}
 
 	/**

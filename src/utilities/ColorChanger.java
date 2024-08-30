@@ -28,30 +28,24 @@ public class ColorChanger {
 		return image;
 	}
 
-	// Method to change the color of the image
 	public static BufferedImage changeImageColor(BufferedImage image, Color color) {
-		BufferedImage newImage = new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_INT_ARGB);
-		Graphics2D g2d = newImage.createGraphics();
-		g2d.drawImage(image, 0, 0, null);
-
-		// Get the pixel data
 		int width = image.getWidth();
 		int height = image.getHeight();
+		BufferedImage newImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
 
 		for (int y = 0; y < height; y++) {
 			for (int x = 0; x < width; x++) {
 				int rgba = image.getRGB(x, y);
-				// Check if the pixel is not transparent
-				if ((rgba >> 24) != 0x00) {
-					// Apply the new color while keeping the original alpha value
-					int newRgb = color.getRGB() & 0xFFFFFF;
-					int alpha = rgba >> 24;
+				int alpha = (rgba >> 24) & 0xFF; // Preserve alpha
+				if (alpha != 0) { // Non-transparent pixel
+					int newRgb = color.getRGB() & 0xFFFFFF; // New color without alpha
 					int coloredArgb = (alpha << 24) | newRgb;
 					newImage.setRGB(x, y, coloredArgb);
+				} else {
+					newImage.setRGB(x, y, rgba); // Preserve transparent pixels
 				}
 			}
 		}
-		g2d.dispose();
 		return newImage;
 	}
 

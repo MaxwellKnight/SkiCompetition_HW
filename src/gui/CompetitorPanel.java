@@ -1,5 +1,7 @@
 package gui;
 
+import java.awt.Dimension;
+
 import javax.swing.*;
 
 import game.competition.WinterCompetition;

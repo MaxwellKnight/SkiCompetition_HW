@@ -24,40 +24,8 @@ import game.entities.sportsman.Sportsman;
 public class App extends JFrame implements Observer {
 
 	private WinterArena arena = null;
-
-	public IArena getArena() {
-		return arena;
-	}
-
-	public void setArena(WinterArena arena) {
-		this.arena = arena;
-	}
-
 	private Competition winterCompetition = null;
-
-	public Competition getWinterCompetition() {
-		return winterCompetition;
-	}
-
-	public void setWinterCompetition(Competition winterCompetition) {
-		this.winterCompetition = winterCompetition;
-	}
-
 	private final HashMap<ICompetitor, JLabel> racersLabels = new HashMap<>();
-
-	public HashMap<ICompetitor, JLabel> getRacersLabels() {
-		return racersLabels;
-	}
-
-	public InfoFrame getInfoPanel() {
-		return this.infoFrame;
-	}
-
-	private final JPanelWithBackground screen;
-
-	public JPanelWithBackground getScreen() {
-		return this.screen;
-	}
 
 	private final JPanel controls;
 	private final InfoFrame infoFrame;
@@ -102,6 +70,36 @@ public class App extends JFrame implements Observer {
 		add(controls, BorderLayout.EAST);
 		pack();
 		setVisible(true);
+	}
+
+	public IArena getArena() {
+		return arena;
+	}
+
+	public void setArena(WinterArena arena) {
+		this.arena = arena;
+	}
+
+	public Competition getWinterCompetition() {
+		return winterCompetition;
+	}
+
+	public void setWinterCompetition(Competition winterCompetition) {
+		this.winterCompetition = winterCompetition;
+	}
+
+	public HashMap<ICompetitor, JLabel> getRacersLabels() {
+		return racersLabels;
+	}
+
+	public InfoFrame getInfoPanel() {
+		return this.infoFrame;
+	}
+
+	private final JPanelWithBackground screen;
+
+	public JPanelWithBackground getScreen() {
+		return this.screen;
 	}
 
 	private JLabel createRacerLabel(final String iconPath) {

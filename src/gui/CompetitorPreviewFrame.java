@@ -1,34 +1,33 @@
 package gui;
 
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Graphics2D;
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JComboBox;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JTextField;
+import javax.swing.*;
 import javax.swing.border.EmptyBorder;
-import javax.swing.JColorChooser;
 
 import game.Interfaces.ICompetitor;
+import game.Interfaces.IWinterSportsman;
+import game.entities.sportsman.Decorator.ColoredSportsman;
+import game.entities.sportsman.Decorator.SpeedySportsman;
 import utilities.ColorChanger;
 
 public class CompetitorPreviewFrame extends JFrame {
 
-	private final JPanel previewPanel;
+	private final JPanelWithBackground previewPanel;
 	private final JPanelWithBackground screen;
 	private final HashMap<ICompetitor, JLabel> racerLabels;
 	private final HashMap<ICompetitor, ImageIcon> originalIcons;
 	private final JComboBox<ICompetitor> racerDropdown;
 	private Color selectedColor = Color.BLACK;
+	private Map<ICompetitor, ColoredSportsman> coloredSportsmen;
+	private Map<ICompetitor, SpeedySportsman> speedySportsmen;
+	private JTextField accelerationField;
+
+	private static final int DEFAULT_PREVIEW_WIDTH = 200;
+	private static final int DEFAULT_PREVIEW_HEIGHT = 200;
 
 	public CompetitorPreviewFrame(HashMap<ICompetitor, JLabel> racerLabels, JPanelWithBackground screen) {
 		this.screen = screen;
@@ -39,7 +38,7 @@ public class CompetitorPreviewFrame extends JFrame {
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		setLayout(new BorderLayout());
 
-		previewPanel = new JPanel(new BorderLayout());
+		previewPanel = new JPanelWithBackground("");
 		previewPanel.setPreferredSize(new Dimension(800, 600));
 
 		racerDropdown = new JComboBox<>(racerLabels.keySet().toArray(new ICompetitor[0]));
@@ -57,7 +56,7 @@ public class CompetitorPreviewFrame extends JFrame {
 			}
 		});
 
-		JTextField accelerationField = new JTextField();
+		accelerationField = new JTextField();
 		accelerationField.setPreferredSize(new Dimension(100, 30));
 		accelerationField.setToolTipText("Enter acceleration value");
 
@@ -99,16 +98,43 @@ public class CompetitorPreviewFrame extends JFrame {
 			originalIcons.put(entry.getKey(), (ImageIcon) entry.getValue().getIcon());
 		}
 
+		this.coloredSportsmen = new HashMap<>();
+		this.speedySportsmen = new HashMap<>();
+
+		for (ICompetitor competitor : racerLabels.keySet()) {
+			if (competitor instanceof IWinterSportsman) {
+				IWinterSportsman winterSportsman = (IWinterSportsman) competitor;
+				coloredSportsmen.put(competitor, new ColoredSportsman(winterSportsman));
+				speedySportsmen.put(competitor, new SpeedySportsman(winterSportsman));
+			}
+		}
+
 		updatePreview((ICompetitor) racerDropdown.getSelectedItem());
 	}
 
 	private void updatePreview(ICompetitor selectedCompetitor) {
 		if (selectedCompetitor != null) {
-			JLabel label = new JLabel(getUpdatedIcon(selectedCompetitor));
+			ImageIcon icon = getUpdatedIcon(selectedCompetitor);
+			JLabel label = new JLabel(icon);
 			label.setHorizontalAlignment(JLabel.CENTER);
 			label.setVerticalAlignment(JLabel.CENTER);
+
+			// Use a minimum size for the label
+			int width = Math.max(previewPanel.getWidth(), DEFAULT_PREVIEW_WIDTH);
+			int height = Math.max(previewPanel.getHeight(), DEFAULT_PREVIEW_HEIGHT);
+			label.setPreferredSize(new Dimension(width, height));
+
+			previewPanel.setLayout(new BorderLayout());
 			previewPanel.removeAll();
 			previewPanel.add(label, BorderLayout.CENTER);
+
+			if (selectedCompetitor instanceof IWinterSportsman) {
+				SpeedySportsman speedySportsman = speedySportsmen.get(selectedCompetitor);
+				double currentAcceleration = speedySportsman.getAcceleration();
+				JLabel accelerationLabel = new JLabel("Current Acceleration: " + currentAcceleration);
+				previewPanel.add(accelerationLabel, BorderLayout.SOUTH);
+			}
+
 			previewPanel.revalidate();
 			previewPanel.repaint();
 		}
@@ -116,8 +142,20 @@ public class CompetitorPreviewFrame extends JFrame {
 
 	private ImageIcon getUpdatedIcon(ICompetitor competitor) {
 		ImageIcon originalIcon = originalIcons.get(competitor);
-		if (selectedColor.equals(Color.BLACK)) {
-			return originalIcon;
+		Color color = Color.BLACK;
+
+		if (competitor instanceof IWinterSportsman) {
+			ColoredSportsman coloredSportsman = coloredSportsmen.get(competitor);
+			if (coloredSportsman != null) {
+				Color sportmanColor = coloredSportsman.getColor();
+				if (sportmanColor != null) {
+					color = sportmanColor;
+				}
+			}
+		}
+
+		if (color.equals(Color.BLACK)) {
+			return scaleIcon(originalIcon, 300, 300);
 		}
 
 		BufferedImage bufferedImage = new BufferedImage(
@@ -128,35 +166,67 @@ public class CompetitorPreviewFrame extends JFrame {
 		g2d.drawImage(originalIcon.getImage(), 0, 0, null);
 		g2d.dispose();
 
-		BufferedImage coloredImage = ColorChanger.changeImageColor(bufferedImage, selectedColor);
-		return new ImageIcon(coloredImage);
+		BufferedImage coloredImage = ColorChanger.changeImageColor(bufferedImage, color);
+		return scaleIcon(new ImageIcon(coloredImage), 300, 300);
+	}
+
+	private ImageIcon scaleIcon(ImageIcon icon, int width, int height) {
+		if (width <= 0 || height <= 0) {
+			return icon; // Return original icon if dimensions are invalid
+		}
+		Image img = icon.getImage();
+		Image scaledImg = img.getScaledInstance(width, height, Image.SCALE_SMOOTH);
+		return new ImageIcon(scaledImg);
 	}
 
 	private void updateLabels(ICompetitor selectedCompetitor) {
-		ImageIcon updatedIcon = getUpdatedIcon(selectedCompetitor);
+		if (selectedCompetitor instanceof IWinterSportsman) {
+			ColoredSportsman coloredSportsman = coloredSportsmen.get(selectedCompetitor);
+			SpeedySportsman speedySportsman = speedySportsmen.get(selectedCompetitor);
 
-		// Update preview panel
-		updatePreview(selectedCompetitor);
+			coloredSportsman.colorSportsman(selectedColor);
 
-		// Update screen panel
-		JLabel screenLabel = racerLabels.get(selectedCompetitor);
-		if (screenLabel != null) {
-			screenLabel.setIcon(updatedIcon);
-			screen.revalidate();
-			screen.repaint();
+			try {
+				if (accelerationField.getText().length() > 0) {
+					double accelerationIncrease = Double.parseDouble(accelerationField.getText());
+					speedySportsman.increaseAcceleration(accelerationIncrease);
+				}
+			} catch (NumberFormatException e) {
+				JOptionPane.showMessageDialog(this, "Please enter a valid number for acceleration.",
+						"Invalid Input",
+						JOptionPane.ERROR_MESSAGE);
+				return;
+			}
+
+			ImageIcon updatedIcon = getUpdatedIcon(selectedCompetitor);
+
+			updatePreview(selectedCompetitor);
+
+			JLabel screenLabel = racerLabels.get(selectedCompetitor);
+			if (screenLabel != null) {
+				screenLabel.setIcon(scaleIcon(updatedIcon, 50, 50));
+				screen.revalidate();
+				screen.repaint();
+			}
 		}
 	}
 
 	private void resetLabels(ICompetitor selectedCompetitor) {
-		// Reset preview panel
-		updatePreview(selectedCompetitor);
+		if (selectedCompetitor instanceof IWinterSportsman) {
+			ColoredSportsman coloredSportsman = coloredSportsmen.get(selectedCompetitor);
+			SpeedySportsman speedySportsman = speedySportsmen.get(selectedCompetitor);
 
-		// Reset screen panel
-		JLabel screenLabel = racerLabels.get(selectedCompetitor);
-		if (screenLabel != null) {
-			screenLabel.setIcon(originalIcons.get(selectedCompetitor));
-			screen.revalidate();
-			screen.repaint();
+			coloredSportsman.colorSportsman(Color.BLACK);
+			speedySportsman.increaseAcceleration(-speedySportsman.getAcceleration());
+
+			updatePreview(selectedCompetitor);
+
+			JLabel screenLabel = racerLabels.get(selectedCompetitor);
+			if (screenLabel != null) {
+				screenLabel.setIcon(originalIcons.get(selectedCompetitor));
+				screen.revalidate();
+				screen.repaint();
+			}
 		}
 	}
 }
